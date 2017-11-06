@@ -14,7 +14,7 @@ public class InputConfigEditor : Editor {
     [MenuItem("MyEditor/CreateInputConfig")]
     public static void CreateInputConfig()
     {
-        string path = Application.dataPath + FoldPath + InputConfig.ConfigName;
+        string path = Application.dataPath + FoldPath + InputConfig.ConfigName + ".asset";
 
         if (File.Exists(path))
         {

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class InputConfig : ScriptableObject {
-    private InputConfig _instance;
-    public InputConfig Instance
+    private static InputConfig _instance;
+    public static InputConfig Instance
     {
         get {
             if (!_instance)
@@ -15,7 +15,7 @@ public class InputConfig : ScriptableObject {
         }
     }
 
-    public const string ConfigName = "InputConfig.asset";
+    public const string ConfigName = "InputConfig";
     public string[] _keySet = new string[0];
     public string[] _valueSet = new string[0];
 
@@ -62,5 +62,14 @@ public class InputConfig : ScriptableObject {
 
         _keySet = newKeySet;
         _valueSet = newValueSet;
+    }
+    /// <summary>
+    /// 更新指令对应的键位
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="newCode"></param>
+    public void RefreshNewValue(int index , string newCode)
+    {
+        _valueSet[index] = newCode;
     }
 }
