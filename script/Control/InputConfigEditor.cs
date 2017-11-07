@@ -68,8 +68,10 @@ public class InputConfigEditor : Editor {
         }
         EditorGUILayout.EndVertical();
 
-        //SaveInputConfig();
-
+        if (GUILayout.Button("Save", GUILayout.Width(ButtonWidth )))
+        {
+            SaveInputConfig();
+        }
 
         if (GUILayout.Button("ReadData",GUILayout.Width(ButtonWidth*2)))
         {
@@ -82,7 +84,16 @@ public class InputConfigEditor : Editor {
     /// </summary>
     void SaveInputConfig()
     {
+        EditorUtility.SetDirty(_inputConfig);
+        AssetDatabase.SaveAssets();
+
         
+        string json =  JsonUtility.ToJson(InputConfig.Instance);
+        string path = Application.dataPath + FoldPath + InputConfig.ConfigName + ".json";
+        StreamWriter file = new StreamWriter(path);
+        file.Write(json);
+        file.Flush();
+        file.Close();
     }
 
     /// <summary>

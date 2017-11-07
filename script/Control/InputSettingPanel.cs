@@ -2,24 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
 
 public class InputSettingPanel : MonoBehaviour {
 
     public GameObject _content;
     public GameObject _toggle;
     public GameObject _group;
-    private GameObject[] _toggleGroup; 
+    private GameObject[] _toggleGroup;
+
+    InputConfigBase _inputConfig;
+
     private void Start()
     {
-        int count = InputConfig.Instance.TryGetSetLength();
+        string path = Application.dataPath + "/Resources/InputConfig.json";
+        if (File.Exists(path))
+        {
+            StreamReader sr = new StreamReader(path);
+            string json = sr.ReadToEnd();
+            _inputConfig = JsonUtility.FromJson<InputConfigBase>(json);
+            sr.Close();
+        }
+
+        int count = _inputConfig._keySet.Length;
         _toggleGroup = new GameObject[count];
 
         for (int i = 0; i < count; ++i)
         {
             GameObject clone = Instantiate(_toggle , _group.transform);
 
-            string key = InputConfig.Instance._keySet[i];
-            string val = InputConfig.Instance._valueSet[i];
+            string key = _inputConfig._keySet[i];
+            string val = _inputConfig._valueSet[i];
 
             clone.transform.Find("CmdName").GetComponent<Text>().text = key;
             clone.transform.Find("keyCode").GetComponent<Text>().text = val;
@@ -64,7 +77,9 @@ public class InputSettingPanel : MonoBehaviour {
                         _toggleGroup[i].transform.Find("keyCode").GetComponent<Text>().text = newCode;
                         _toggleGroup[i].GetComponent<Toggle>().isOn = false;
 
-                        InputConfig.Instance.RefreshNewValue(i, newCode);
+                        _inputConfig._valueSet[i] = newCode;
+
+                        SaveConfig();
                     }
                 }
                 Debug.Log("curretn key is :" + currentKey.ToString());
@@ -75,5 +90,15 @@ public class InputSettingPanel : MonoBehaviour {
     public void SwitchContentStatus()
     {
         _content.SetActive(!_content.activeSelf);
+    }
+
+    void SaveConfig()
+    {
+        string json = JsonUtility.ToJson(_inputConfig);
+        string path = Application.dataPath + "/Resources/InputConfig.json";
+        StreamWriter file = new StreamWriter(path);
+        file.Write(json);
+        file.Flush();
+        file.Close();   
     }
 }

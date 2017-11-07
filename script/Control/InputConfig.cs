@@ -1,6 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+
+[System.Serializable]
+public class InputConfigBase
+{
+    public string[] _keySet = new string[0];
+    public string[] _valueSet = new string[0];
+}
 
 public class InputConfig : ScriptableObject {
     private static InputConfig _instance;
@@ -71,5 +79,12 @@ public class InputConfig : ScriptableObject {
     public void RefreshNewValue(int index , string newCode)
     {
         _valueSet[index] = newCode;
+
+        string json = JsonUtility.ToJson(_instance);
+        string path = Application.dataPath + "/Resources/" + InputConfig.ConfigName + ".json";
+        StreamWriter file = new StreamWriter(path);
+        file.Write(json);
+        file.Flush();
+        file.Close(); 
     }
 }
