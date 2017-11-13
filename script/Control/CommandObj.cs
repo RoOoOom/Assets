@@ -4,9 +4,28 @@ using UnityEngine;
 
 namespace CommandObj {
     public class CommandBase {
+        public delegate void ActionDelegate();
+        public event ActionDelegate ProcessAction;
+
+
+        /// <summary>
+        /// 执行指令
+        /// </summary>
+        /// <param name="player"></param>
         public virtual void Excute( PlayerObj player )
         {
 
+        }
+
+        /// <summary>
+        /// 执行指令
+        /// </summary>
+        public virtual void Excute()
+        {
+            if (ProcessAction != null)
+            {
+                ProcessAction();
+            }
         }
     }
 

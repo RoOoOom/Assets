@@ -99,6 +99,8 @@ public class InputSettingPanel : MonoBehaviour {
         StreamWriter file = new StreamWriter(path);
         file.Write(json);
         file.Flush();
-        file.Close();   
+        file.Close();
+
+        GameObject.Find("INputManager").SendMessage("ReadInputConfig");
     }
 }
