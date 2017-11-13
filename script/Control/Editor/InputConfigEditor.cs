@@ -21,7 +21,7 @@ public class InputConfigEditor : Editor {
             Debug.LogWarning("不需要创建多个配置文件");
             return;
         }
-        path = "Assets" + FoldPath + InputConfig.ConfigName; 
+        path = "Assets" + FoldPath + InputConfig.ConfigName + ".asset"; 
 
         InputConfig instance = CreateInstance<InputConfig>( );
         AssetDatabase.CreateAsset(instance, path);
@@ -52,7 +52,8 @@ public class InputConfigEditor : Editor {
             EditorGUILayout.BeginHorizontal();
 
             _inputConfig._keySet[i] = EditorGUILayout.TextField(_inputConfig._keySet[i]);
-            _inputConfig._valueSet[i] = EditorGUILayout.TextField(_inputConfig._valueSet[i]);
+            // _inputConfig._valueSet[i] = EditorGUILayout.TextField(_inputConfig._valueSet[i]);
+            _inputConfig._valueSet[i] = (KeyCode)EditorGUILayout.EnumPopup(_inputConfig._valueSet[i]);
 
             if (GUILayout.Button("-",GUILayout.Width(ButtonWidth)))
             {
@@ -101,7 +102,7 @@ public class InputConfigEditor : Editor {
     /// </summary>
     void AddKeyValue()
     {
-        _inputConfig.AddKeyValue("", "");
+        _inputConfig.AddKeyValue("", KeyCode.Space);
 
     }
 

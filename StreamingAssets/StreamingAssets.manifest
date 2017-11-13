@@ -1,0 +1,10 @@
+ManifestFileVersion: 0
+CRC: 2162492976
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: testcanvas
+      Dependencies: {}
+    Info_1:
+      Name: main_cam
+      Dependencies: {}

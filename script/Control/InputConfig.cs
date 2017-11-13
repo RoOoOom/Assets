@@ -7,7 +7,8 @@ using System.IO;
 public class InputConfigBase
 {
     public string[] _keySet = new string[0];
-    public string[] _valueSet = new string[0];
+    // public string[] _valueSet = new string[0];
+    public KeyCode[] _valueSet = new KeyCode[0];
 }
 
 public class InputConfig : ScriptableObject {
@@ -25,7 +26,8 @@ public class InputConfig : ScriptableObject {
 
     public const string ConfigName = "InputConfig";
     public string[] _keySet = new string[0];
-    public string[] _valueSet = new string[0];
+    //public string[] _valueSet = new string[0];
+    public KeyCode[] _valueSet = new KeyCode[0];
 
     public int TryGetSetLength()
     {
@@ -34,13 +36,13 @@ public class InputConfig : ScriptableObject {
 
     public void ClearKeySet()
     {
-
+     
     }
 
-    public void AddKeyValue(string key, string value)
+    public void AddKeyValue(string key, KeyCode value)
     {
         string[] newKeySet = new string[_keySet.Length + 1];
-        string[] newValueSet = new string[_keySet.Length + 1];
+        KeyCode[] newValueSet = new KeyCode[_keySet.Length + 1];
 
         for (int i = 0; i < _keySet.Length; ++i)
         {
@@ -58,7 +60,7 @@ public class InputConfig : ScriptableObject {
     public void RemoveKey(int index)
     {
         string[] newKeySet = new string[_keySet.Length - 1];
-        string[] newValueSet = new string[_keySet.Length - 1];
+        KeyCode[] newValueSet = new KeyCode[_keySet.Length - 1];
 
         for (int i = 0; i<_keySet.Length; ++i)
         {
@@ -76,7 +78,7 @@ public class InputConfig : ScriptableObject {
     /// </summary>
     /// <param name="index"></param>
     /// <param name="newCode"></param>
-    public void RefreshNewValue(int index , string newCode)
+    public void RefreshNewValue(int index , KeyCode newCode)
     {
         _valueSet[index] = newCode;
 

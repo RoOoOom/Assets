@@ -32,10 +32,10 @@ public class InputSettingPanel : MonoBehaviour {
             GameObject clone = Instantiate(_toggle , _group.transform);
 
             string key = _inputConfig._keySet[i];
-            string val = _inputConfig._valueSet[i];
+            KeyCode val = _inputConfig._valueSet[i];
 
             clone.transform.Find("CmdName").GetComponent<Text>().text = key;
-            clone.transform.Find("keyCode").GetComponent<Text>().text = val;
+            clone.transform.Find("keyCode").GetComponent<Text>().text = val.ToString();
 
             clone.transform.localPosition -= (new Vector3(0f, 30f*i, 0f));
             clone.SetActive(true);
@@ -73,8 +73,8 @@ public class InputSettingPanel : MonoBehaviour {
                 {
                     if (_toggleGroup[i].GetComponent<Toggle>().isOn)
                     {
-                        string newCode = currentKey.ToString();
-                        _toggleGroup[i].transform.Find("keyCode").GetComponent<Text>().text = newCode;
+                        KeyCode newCode = currentKey;
+                        _toggleGroup[i].transform.Find("keyCode").GetComponent<Text>().text = newCode.ToString();
                         _toggleGroup[i].GetComponent<Toggle>().isOn = false;
 
                         _inputConfig._valueSet[i] = newCode;
