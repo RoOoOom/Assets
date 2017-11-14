@@ -72,6 +72,8 @@ public class AppendSDKWindow : EditorWindow {
             _root.AppendChild(sdkNode);
             _xmlDoc.AppendChild(_root);
             _xmlDoc.Save(_path);
+
+            AssetDatabase.Refresh();
         }
         else
         {
@@ -113,6 +115,8 @@ public class AppendSDKWindow : EditorWindow {
         }
 
         _xmlDoc.Save(_path);
+
+        AssetDatabase.Refresh();
     }
 
     /// <summary>
@@ -128,6 +132,8 @@ public class AppendSDKWindow : EditorWindow {
         xmlNode.InnerText = _folderSet[index];
 
         _xmlDoc.Save(_path);
+
+        AssetDatabase.Refresh();
     }
 
     /// <summary>
@@ -147,5 +153,7 @@ public class AppendSDKWindow : EditorWindow {
         _folderSet.Add("");
 
         Debug.Log("更新后的数量：" + _xmlNodeList.Count);
+
+        AssetDatabase.Refresh();
     }
 }

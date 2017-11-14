@@ -24,6 +24,8 @@ public class AppendSDKEditor : Editor {
     public static void AppendDDLH()
     {
         CopySourceByID("ddlh");
+
+        AssetDatabase.Refresh();
     }
 
     /// <summary>
@@ -53,10 +55,11 @@ public class AppendSDKEditor : Editor {
         XmlElement element = (XmlElement)root.SelectSingleNode(nodeName);
 
         srcPath = Path.Combine(srcPath , element.InnerText);
-        srcPath = srcPath.Replace('/','\\');
+        
+        srcPath = srcPath.Replace('/','\\');//在MAC系统下这条语句要注释掉
 
         dstPath = Path.Combine(dstPath, element.InnerText);
-        dstPath = dstPath.Replace('/', '\\');
+        dstPath = dstPath.Replace('/', '\\');//在MAC系统下这条语句要注释掉
         Debug.Log("源路径:" + srcPath);
 
         CopyFolderTo(srcPath, dstPath);
@@ -77,7 +80,11 @@ public class AppendSDKEditor : Editor {
 
         if (Directory.Exists(directoryTarget))
         {
-            Directory.Delete(directoryTarget);
+            bool choose = EditorUtility.DisplayDialog("注意", "SDK资源目录已存在，确定要替换吗?", "确定", "取消");
+            if (choose)
+               DeleteDir(directoryTarget);
+            else
+                return;
         }
 
         Directory.CreateDirectory(directoryTarget);
@@ -87,17 +94,47 @@ public class AppendSDKEditor : Editor {
 
         FileInfo[] files = dirInfo.GetFiles();
 
+        int i = 1;
         foreach ( FileInfo file in files )
         {
+            EditorUtility.DisplayProgressBar("正在复制...", file.Name, (float)i / (float)files.Length);
             file.CopyTo(Path.Combine(directoryTarget, file.Name));
+            i++;
         }
-
+        EditorUtility.ClearProgressBar();
+        
         DirectoryInfo[] directoryInfoArray = dirInfo.GetDirectories();
         foreach (DirectoryInfo di in directoryInfoArray)
         {
             CopyFolderTo(Path.Combine(directorySource, di.Name), Path.Combine(directoryTarget, di.Name));
         }
     }
+    /// <summary>
+    /// 删除已存在的文件夹
+    /// </summary>
+    /// <param name="srcpath"></param>
+    public static void DeleteDir(string srcpath)
+    {
+        DirectoryInfo dirInfo = new DirectoryInfo(srcpath);
+        dirInfo.Delete(true);
+
+        /*
+        FileSystemInfo[] fileList = dirInfo.GetFileSystemInfos();
+
+        for (int i = 0; i < fileList.Length; ++i)
+        {
+            if (fileList[i] is DirectoryInfo)
+            {
+                DirectoryInfo tempInfo = new DirectoryInfo(fileList[i].FullName);
+                tempInfo.Delete(true);
+            }
+            else {
+                File.Delete(fileList[i].FullName);
+            }
+        }
+        */ 
+    }
+
 
 
 }
