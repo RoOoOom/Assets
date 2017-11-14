@@ -14,7 +14,7 @@ public class AppendSDKEditor : Editor {
     public const string NodeAttr = "id";
 
 
-    [MenuItem("MyEditor/CreateSDKReflection")]
+    [MenuItem("MyEditor/编辑映射关系表")]
     public static void CreateSDKReflection()
     {
         EditorWindow.GetWindow<AppendSDKWindow>().Show();
@@ -53,6 +53,12 @@ public class AppendSDKEditor : Editor {
         Debug.Log(nodeName);
 
         XmlElement element = (XmlElement)root.SelectSingleNode(nodeName);
+
+        if (element == null)
+        {
+            Debug.LogWarning("映射关系不对，检查id，文件夹名是否正确");
+            return;
+        }
 
         srcPath = Path.Combine(srcPath , element.InnerText);
         

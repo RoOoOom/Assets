@@ -37,7 +37,14 @@ public class AppendSDKWindow : EditorWindow {
             EditorGUILayout.BeginHorizontal();
             _idSet[i] = EditorGUILayout.TextField(_idSet[i]);
             _folderSet[i] = EditorGUILayout.TextField(_folderSet[i]);
+
+            if (GUILayout.Button("-", GUILayout.Width(40f)))
+            {
+                RemoveNode(i);
+            }
             EditorGUILayout.EndHorizontal();
+
+            
         }
 
 
@@ -151,6 +158,36 @@ public class AppendSDKWindow : EditorWindow {
 
         _idSet.Add("");
         _folderSet.Add("");
+
+        Debug.Log("更新后的数量：" + _xmlNodeList.Count);
+
+        AssetDatabase.Refresh();
+    }
+
+    /// <summary>
+    /// 移除节点
+    /// </summary>
+    /// <param name="index"></param>>
+    void RemoveNode(int index)
+    {
+        int i = 0;
+
+        foreach ( XmlElement e in _xmlNodeList )
+        {
+            if (i == index)
+            {
+                _root.RemoveChild(e);
+                break;
+            }
+            i++;
+        }
+
+        _xmlDoc.Save(_path);
+
+        _idSet.RemoveAt(index);
+        _folderSet.RemoveAt(index);
+
+        _xmlNodeList = _root.GetElementsByTagName(AppendSDKEditor.NodeKey);
 
         Debug.Log("更新后的数量：" + _xmlNodeList.Count);
 
