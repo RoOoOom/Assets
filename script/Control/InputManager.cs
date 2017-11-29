@@ -68,6 +68,7 @@ public class InputManager : MonoBehaviour {
 
     void KeyCheckB()
     {
+
         if (Input.GetKeyDown(_keyList[Attack_key]))
         {
            _cmdAttack.Excute(_playerObj);

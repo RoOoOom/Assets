@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+  <Node>
+  	<Key>ddlhzb</Key>
+  	<Value>bitcode设置为NO，打开iap权限，添加链接libz.tbd</Value>
+  </Node>
+  <Node>
+  	<Key>hlcsyy</Key>
+  	<Value>bitcode设置为NO</Value>
+  </Node>
+  <Node>
+  	<Key>hlcszb</Key>
+  	<Value>bitcode设置为NO,打开IAP权限，添加链接libz.tbd</Value>
+  </Node>
+  <Node>
+  	<Key>npcqyy</Key>
+  	<Value>bitcode设置为NO,other linker flags修改为-ObjC -lsqlite3.0 </Value>
+  </Node>
+
+</Root>

@@ -5,6 +5,8 @@ using UnityEditor;
 using System.IO;
 using System.Xml;
 
+//主要用于在MAC系统上把ios渠道的SDK资源复制到项目指定的路径下，需要通过一个自定义的映射表来确定SDK资源目录
+
 public class AppendSDKEditor : Editor {
     public const string SrcFolder = "Mods";
     public const string DstFolder = "/Xuporter/Mods";
@@ -19,6 +21,14 @@ public class AppendSDKEditor : Editor {
     {
         EditorWindow.GetWindow<AppendSDKWindow>().Show();
     }
+
+    /*
+    [MenuItem("MyEditor/打开渠道选择窗口")]
+    public static void OpenPlatfomSelectWindow()
+    {
+        EditorWindow.GetWindow<ImportSDKWindow>().Show();
+    }
+    */
 
     [MenuItem("MyEditor/添加SDK资源/添加刀刀烈火SDK")]
     public static void AppendDDLH()
@@ -62,10 +72,13 @@ public class AppendSDKEditor : Editor {
 
         srcPath = Path.Combine(srcPath , element.InnerText);
         
-        srcPath = srcPath.Replace('/','\\');//在MAC系统下这条语句要注释掉
 
         dstPath = Path.Combine(dstPath, element.InnerText);
+        
+#if UNITY_STANDALONE_WIN
+        srcPath = srcPath.Replace('/', '\\');//在MAC系统下这条语句要注释掉
         dstPath = dstPath.Replace('/', '\\');//在MAC系统下这条语句要注释掉
+#endif
         Debug.Log("源路径:" + srcPath);
 
         CopyFolderTo(srcPath, dstPath);
