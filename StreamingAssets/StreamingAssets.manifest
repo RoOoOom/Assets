@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 2162492976
+CRC: 1786832933
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -7,4 +7,10 @@ AssetBundleManifest:
       Dependencies: {}
     Info_1:
       Name: main_cam
+      Dependencies: {}
+    Info_2:
+      Name: inputconfig_scrobj
+      Dependencies: {}
+    Info_3:
+      Name: inputconfig_json
       Dependencies: {}

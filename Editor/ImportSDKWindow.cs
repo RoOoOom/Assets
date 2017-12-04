@@ -99,7 +99,12 @@ public class ImportSDKWindow : EditorWindow {
 
         string info = "";
         _statement.TryGetValue( m_selectType.ToString() , out info);
-        EditorGUILayout.HelpBox(info,MessageType.Info);
+
+        GUIStyle gS = new GUIStyle();
+        gS.fontSize = 20;
+       
+        GUI.TextField(new Rect(70, 230, 400, 100),info, gS);
+        //EditorGUILayout.HelpBox(info,MessageType.Info);
 
     }
 
