@@ -50,7 +50,7 @@ public class ImportSDKWindow : EditorWindow {
     {
         int i = 0;
 
-        if(GUILayout.Button("创建渠道对应的文件夹"))
+        if(GUILayout.Button("创建渠道对应的文件夹",GUILayout.Height(30f)))
         {
             CreateAllPlatformDirectory();
         }
@@ -92,7 +92,7 @@ public class ImportSDKWindow : EditorWindow {
 
         EditorGUILayout.EndVertical();
 
-        if (GUILayout.Button("导入sdk"))
+        if (GUILayout.Button("导入sdk",GUILayout.Height(30f)))
         {
             CopySourceByType(m_selectType);
         }
@@ -100,11 +100,7 @@ public class ImportSDKWindow : EditorWindow {
         string info = "";
         _statement.TryGetValue( m_selectType.ToString() , out info);
 
-        GUIStyle gS = new GUIStyle();
-        gS.fontSize = 20;
-       
-        GUI.TextField(new Rect(70, 230, 400, 100),info, gS);
-        //EditorGUILayout.HelpBox(info,MessageType.Info);
+        EditorGUILayout.HelpBox(info,MessageType.Info);
 
     }
 
@@ -167,9 +163,16 @@ public class ImportSDKWindow : EditorWindow {
         string destPath = Path.Combine(Application.dataPath, SetDirectory);
         string replacePath = Application.dataPath.Replace("Assets", "ReplaceXCode");
 
-        //ClearOtherSDK(sdkType);
+        if (!Directory.Exists(sdkPath))
+        {
+            Debug.LogWarning("sdk目录不存在");
+            return;
+        }
 
-		DeleteDirByPath (destPath);
+        //ClearOtherSDK(sdkType);
+        try
+        {
+            DeleteDirByPath(destPath);
 
         CopyFolderTo(sdkPath, destPath , "sdk资源");
 
@@ -177,7 +180,13 @@ public class ImportSDKWindow : EditorWindow {
 
         InsteadPiacture(picPath);
 
-		AssetDatabase.Refresh ();
+            AssetDatabase.Refresh();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+            return;
+        }
     }
 
 
