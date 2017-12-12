@@ -11,7 +11,7 @@ namespace CommandObj {
         /// <summary>
         /// 执行指令
         /// </summary>
-        /// <param name="player"></param>
+        /// <param name="player">玩家对象</param>
         public virtual void Excute( PlayerObj player )
         {
 

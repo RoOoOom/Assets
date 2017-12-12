@@ -95,6 +95,8 @@ public class InputConfigEditor : Editor {
         file.Write(json);
         file.Flush();
         file.Close();
+
+        AssetDatabase.Refresh();
     }
 
     /// <summary>

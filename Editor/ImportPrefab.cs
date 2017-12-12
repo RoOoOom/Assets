@@ -4,12 +4,13 @@ using UnityEngine;
 using System.IO;
 using UnityEditor;
 
-public class ImportPrefab : MonoBehaviour {
+public class ImportPrefab {
     string path = "/CubePre.prefab";
 	// Use this for initialization
 	void Start () {
         path = Application.dataPath + path;
-        AssetDatabase.ImportAsset(path);
+       //AssetDatabase.ImportAsset(path);
+
     }
 	
 	// Update is called once per frame

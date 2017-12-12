@@ -1,1 +1,1 @@
-{"_keySet":["attack","jump","moveFowrad","moveBack"],"_valueSet":[106,107,119,115]}
+{"_keySet":["attack","jump","moveFowrad","moveBack","moveLeft","moveRight"],"_valueSet":[106,32,119,115,97,100]}

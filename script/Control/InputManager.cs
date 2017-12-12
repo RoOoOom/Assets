@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using CommandObj;
+using System;
 using System.IO;
 
 public class InputManager : MonoBehaviour {
-    public const int MAX_KEYCOUNT = 4;
+    public const int MAX_KEYCOUNT = 6;
     public const int Attack_key = 0;
     public const int Jump_key = 1;
     public const int MoveFoward_key = 2;
     public const int MoveBack_key = 3;
+    public const int MoveLeft_key = 4;
+    public const int MoveRight_key = 5;
 
     public PlayerObj _playerObj;
 
@@ -20,11 +23,12 @@ public class InputManager : MonoBehaviour {
     CmdMoveLeft _cmdMoveLeft = new CmdMoveLeft();
     CmdMoveRight _cmdMoveRight = new CmdMoveRight();
     // Use this for initialization
-    //暂时确定指令索引 0-攻击，1-跳跃，2-向前移动，3向后移动
+    //暂时确定指令索引 0-攻击，1-跳跃，2-向前移动，3向后移动,4向左移动，5向右移动
 
     CommandBase[] _CmdList = new CommandBase[MAX_KEYCOUNT];
     KeyCode[] _keyList = new KeyCode[MAX_KEYCOUNT];
-	void Start () {
+
+    void Start () {
         if (_playerObj == null)
         {
             _playerObj = GameObject.Find("Player").GetComponent<PlayerObj>();
@@ -35,14 +39,16 @@ public class InputManager : MonoBehaviour {
             Debug.Log("找不到玩家对象");
         }
 
-        //InitCommandList();
+        int n = Enum.GetValues(typeof(KeyCode)).Length;
+
+        InitCommandList();
         ReadInputConfig();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        //KeyCheckA();
-        KeyCheckB();
+        KeyCheckA();
+        //KeyCheckB();
     }
 
     void KeyCheckA()
@@ -63,6 +69,15 @@ public class InputManager : MonoBehaviour {
         else if (Input.GetKeyDown(_keyList[MoveBack_key]))
         {
             _CmdList[MoveBack_key].Excute();
+        }
+
+        if (Input.GetKeyDown(_keyList[MoveLeft_key]))
+        {
+            _CmdList[MoveLeft_key].Excute();
+        }
+        else if (Input.GetKeyDown(_keyList[MoveRight_key]))
+        {
+            _CmdList[MoveRight_key].Excute();
         }
     }
 
@@ -95,10 +110,15 @@ public class InputManager : MonoBehaviour {
 
     void InitCommandList()
     {
+        for (int i = 0; i < MAX_KEYCOUNT; ++i)
+            _CmdList[i] = new CommandBase();
+
         _CmdList[0].ProcessAction += _playerObj.Attack;
         _CmdList[1].ProcessAction += _playerObj.Jump;
         _CmdList[2].ProcessAction += _playerObj.MoveForward;
         _CmdList[3].ProcessAction += _playerObj.MoveBack;
+        _CmdList[4].ProcessAction += _playerObj.MoveLeft;
+        _CmdList[5].ProcessAction += _playerObj.MoveRight;
     }
 
     void InitBplan()
