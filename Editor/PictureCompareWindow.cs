@@ -81,7 +81,15 @@ public class PictureCompareWindow : EditorWindow {
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
             if (GUILayout.Button(_picInfoList[i]._tex2D, GS))
             {
-                Debug.Log("xiwang ");
+                try {
+                    System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("Explorer.exe");
+                    psi.Arguments = "/e,/select," + _picInfoList[i]._path;
+                    System.Diagnostics.Process.Start(psi);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError(e.Message);
+                }
             }
 
             EditorGUILayout.BeginVertical();
@@ -98,7 +106,16 @@ public class PictureCompareWindow : EditorWindow {
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button(_picInfoList[i]._nodes[j]._tex2D, GS))
                 {
-                    Debug.Log("xiwang ");
+                    try
+                    {
+                        System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo("Explorer.exe");
+                        psi.Arguments = "/e,/select," + _picInfoList[i]._nodes[j]._path;
+                        System.Diagnostics.Process.Start(psi);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogError(e.Message);
+                    }
                 }
 
                 EditorGUILayout.BeginVertical();

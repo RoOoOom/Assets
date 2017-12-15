@@ -190,7 +190,10 @@ public class PictureCompareTool : Editor {
 
         ReadMD5FileByPath(comPath);
     }
-
+    /// <summary>
+    /// 根据路径读取美术资源的MD5信息文件
+    /// </summary>
+    /// <param name="path"></param>
     public static void ReadMD5FileByPath(string path)
     {
         StreamReader sr = new StreamReader(path);
@@ -239,6 +242,13 @@ public class PictureCompareTool : Editor {
        CompareWithMD5(dicNameMD5, dicMD5Path, fileSet, md5Set);
     }
 
+    /// <summary>
+    /// 进行对比，第一个字典是名字-MD5合集，第二个字典是md5值-绝对路径
+    /// </summary>
+    /// <param name="nameMD5Set"></param>
+    /// <param name="md5PathSet"></param>
+    /// <param name="nameList"></param>
+    /// <param name="md5List"></param>
     public static void CompareWithMD5( Dictionary<string , string> nameMD5Set, Dictionary<string, string> md5PathSet , List<string> nameList , List<string> md5List )
     {
         List<string> diffSet = new List<string>();

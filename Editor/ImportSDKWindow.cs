@@ -53,6 +53,8 @@ public class ImportSDKWindow : EditorWindow {
         if(GUILayout.Button("创建渠道对应的文件夹",GUILayout.Height(30f)))
         {
             CreateAllPlatformDirectory();
+
+            System.Diagnostics.Process.Start(m_path);
         }
 
         EditorGUILayout.BeginVertical(GUI.skin.box);
@@ -172,7 +174,17 @@ public class ImportSDKWindow : EditorWindow {
         //ClearOtherSDK(sdkType);
         try
         {
-            DeleteDirByPath(destPath);
+            if (Directory.Exists(destPath))
+            {
+                DeleteDirByPath(destPath);
+                Debug.Log("testdelete");
+            }
+            else
+            {
+                Debug.Log("testcreate");
+                Directory.CreateDirectory(destPath);
+                AssetDatabase.Refresh();
+            }
 
         CopyFolderTo(sdkPath, destPath , "sdk资源");
 
