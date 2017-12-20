@@ -23,62 +23,46 @@ public class SmallPicShowInfo
 public class PictureCompareWindow : EditorWindow {
     public const int PicBtnWidth = 64;
     public const int PicBtnHeight = 64;
-    public Texture2D _picture;
+    public Texture2D _gouIcon;
+    public Texture2D _crossIcon;
 
+    private string _searchContent ;
     private Vector2 _scrollPos = Vector2.zero ;
+    private List<bool> _insteadMarkList;
     public List<string> _picPathList;
     private List<PicShowInfo> _picInfoList;
     public Dictionary<string ,string[]> _dicOneToMany;
-
-    /*
-    private void OnGUI()
-    {
-        _picture = EditorGUILayout.ObjectField(_picture,typeof(Texture2D) ) as Texture2D;
-
-        GUIStyle GS = new GUIStyle();
-        GS.fixedHeight = 60;
-        _scrollPos = EditorGUILayout.BeginScrollView( _scrollPos);
-        if (_picture != null)
-        {
-            //  GUI.DrawTexture(new Rect(0, 270, 60, 60), _picture);
-            for (int i = 0; i < 10; ++i)
-            {
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Button(_picture);
-
-                EditorGUILayout.BeginVertical();
-                EditorGUILayout.LabelField("名称:123213");
-                EditorGUILayout.LabelField("路径:easdfasdfasdf");
-                EditorGUILayout.LabelField("大小:5KB");
-                EditorGUILayout.EndVertical();
-
-                GUILayout.Button(_picture);
-
-                EditorGUILayout.BeginVertical();
-                EditorGUILayout.LabelField("名称:5841621");
-                EditorGUILayout.LabelField("路径:easdfasdfasdf");
-                EditorGUILayout.LabelField("大小:5KB");
-                EditorGUILayout.EndVertical();
-
-                EditorGUILayout.EndHorizontal();
-            }
-        }
-        GUI.EndScrollView();
-    }
-    */
-
+    
     private void OnGUI()
     {
         GUIStyle GS = new GUIStyle();
         GS.fixedHeight = 64;
         GS.fixedWidth = 64;
+
+        _searchContent = EditorGUILayout.TextField("搜索",_searchContent);
+
         _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos,true,true);
 
         if (_picInfoList == null) return;
+        bool operationSearch = false;
+        if (_searchContent != null && !_searchContent.Equals(""))
+        {
+            operationSearch = true;
+            _searchContent = _searchContent.ToLower();
+        }
 
         for (int i = 0; i < _picInfoList.Count; ++i)
         {
-            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            if (operationSearch)
+            {
+                string nameToLower = _picInfoList[i]._name.ToLower();
+                if (!nameToLower.Contains(_searchContent))
+                {
+                    continue;
+                }
+            }
+
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);  //level_1
             if (GUILayout.Button(_picInfoList[i]._tex2D, GS))
             {
                 try {
@@ -128,7 +112,19 @@ public class PictureCompareWindow : EditorWindow {
             }
             EditorGUILayout.EndVertical();
 
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginVertical(); //level_6
+            GUILayout.Label("是否已替换");
+            if (GUILayout.Button(_insteadMarkList[i] ? _gouIcon : _crossIcon))
+            {
+                _insteadMarkList[i] = !_insteadMarkList[i];
+            }
+
+            EditorGUILayout.EndVertical();   //level_6
+
+            EditorGUILayout.EndHorizontal();//level_1
 
             EditorGUILayout.Space();
         }
@@ -138,9 +134,82 @@ public class PictureCompareWindow : EditorWindow {
         GUI.EndScrollView();
     }
 
-    public void LoadPicture()
+    //关闭对比窗口后会将修改过的对比结果保存到文件中。
+    private void OnDestroy()
+    {
+        List<string> diffContent = new List<string>();
+        StreamReader sr = new StreamReader(Application.dataPath + PictureCompareTool.DifferentFilePath);
+        while(!sr.EndOfStream)
+        {
+            diffContent.Add(sr.ReadLine());
+        }
+        sr.Close();
+        int n = 0;
+        for (int i = 0; i < diffContent.Count; ++i)
+        {
+            if (diffContent[i].EndsWith("0") || diffContent[i].EndsWith("1"))
+            {
+                char[] charArray = diffContent[i].ToCharArray();
+                charArray[diffContent[i].Length - 1] = _insteadMarkList[n] ? '1' : '0';
+                diffContent[i] = new string(charArray);
+                n++;
+            }
+        }
+
+        StreamWriter sw = new StreamWriter(Application.dataPath + PictureCompareTool.DifferentFilePath);
+
+        for ( int i = 0; i<diffContent.Count ;++i )
+        {
+            sw.WriteLine( diffContent[i]);
+            sw.Flush();
+        }
+        sw.Dispose();
+
+        AssetDatabase.Refresh();
+    }
+
+    /// <summary>
+    /// 加载差异信息文件
+    /// </summary>
+    /// <param name="path">差异信息文件路径</param>
+    public void LoadDifferentFile( string path )
+    {
+        _picPathList = new List<string>();
+        _dicOneToMany = new Dictionary<string, string[]>();
+        _insteadMarkList = new List<bool>();
+
+        StreamReader sr = new StreamReader(path);
+        while (!sr.EndOfStream)
+        {
+            string[] picInfo = sr.ReadLine().Split(PictureCompareTool.SplitChar);
+
+            if (picInfo.Length < 3) continue;
+                
+            _picPathList.Add(picInfo[0]);
+
+            string[] nodeInfo = new string[int.Parse(picInfo[1])];
+
+            for (int i = 0; i < nodeInfo.Length; ++i)
+            {
+                nodeInfo[i] = sr.ReadLine();
+            }
+            _dicOneToMany.Add(picInfo[0], nodeInfo);
+
+            _insteadMarkList.Add(picInfo[2].Equals("0") ? false :true);
+        }
+        sr.Close();
+        sr.Dispose();
+        
+    }
+  
+    /// <summary>
+    /// 根据提供的路径展示图片
+    /// </summary>
+    public void LoadPicture(bool recompare = true )
     {
         if (_picPathList == null || _dicOneToMany == null ) return;
+
+        if (_insteadMarkList == null) _insteadMarkList = new List<bool>();
 
         _picInfoList = new List<PicShowInfo>();
 
@@ -195,6 +264,8 @@ public class PictureCompareWindow : EditorWindow {
             }
 
             _picInfoList.Add(psi);
+
+            if (recompare) _insteadMarkList.Add(!recompare);
         }
 
         _picPathList.Clear();

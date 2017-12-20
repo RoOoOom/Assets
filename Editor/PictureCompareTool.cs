@@ -7,13 +7,82 @@ using UnityEditor;
 
 
 //用于对比图片资源是否有差异或者有更新
-public class PictureCompareTool : Editor {
+public class PictureCompareTool : EditorWindow {
     public const string MD5FileName = "/PicFile.txt";
-    public const string TargetPath = "/Editor/PicFile.txt";
+    public const string TargetPath = "/Editor/PictureCompare/PicFile.txt";
+    public const string DifferentFilePath = "/Editor/PictureCompare/DifferentPictures.txt";
+    public const char SplitChar = '@';
     public static List<string> _picPathSet = new List<string>();
-    
-    [MenuItem("MyEditor/生成项目内批量图片MD5文件")]
-    public static void CreateMD5File()
+    private bool _ignoreExsitFile = false;
+    [MenuItem("Tools/图片对比工具")]
+    public static void OpenCompareToolWindow()
+    {
+        EditorWindow.CreateInstance<PictureCompareTool>().Show();
+    }
+
+    private void OnGUI()
+    {
+        EditorGUILayout.BeginVertical();
+
+        _ignoreExsitFile = EditorGUILayout.Toggle("忽略已存在的MD5信息文件", _ignoreExsitFile);
+        EditorGUILayout.Space();
+
+        if (GUILayout.Button("清理旧数据",GUILayout.Height(30)))
+        {
+            ClearOldFile();
+        }
+
+        if (GUILayout.Button("生成项目内批量图片MD5文件", GUILayout.Height(30)))
+        {
+            CreateMD5File();
+        }
+
+        if (GUILayout.Button("创建外部美术图片MD5文件", GUILayout.Height(30)))
+        {
+            CreateOutsideMD5File();
+        }
+
+        if (GUILayout.Button("进行图片资源对比", GUILayout.Height(30)))
+        {
+            CompareContent();
+        }
+
+        if(GUILayout.Button("打开上次对比结果",GUILayout.Height(30)))
+        {
+            OpenCompareWindow(Application.dataPath + DifferentFilePath);
+        }
+
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.HelpBox("重新使用时建议清理，在进行对比之前，要保证已经为项目内图片生成MD5信息文件",MessageType.Info);
+    }
+
+    /// <summary>
+    /// 清理旧的MD5信息文件和对比结果文件
+    /// </summary>
+    public void ClearOldFile()
+    {
+        string path = Application.dataPath + TargetPath;
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            AssetDatabase.Refresh();
+        }
+
+        path = Application.dataPath + DifferentFilePath;
+
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            AssetDatabase.Refresh();
+        }
+        
+    }
+
+    /// <summary>
+    /// 生成项目内批量图片MD5文件
+    /// </summary>
+    public void CreateMD5File()
     {
         string path = Application.dataPath + "/Game/Package/UI";
 
@@ -24,8 +93,10 @@ public class PictureCompareTool : Editor {
         BuildMD5VersionByPath(path, Application.dataPath + TargetPath);
     }
 
-    [MenuItem("MyEditor/创建外部美术图片MD5文件")]
-    public static void CreateOutsideMD5File()
+    /// <summary>
+    /// 创建外部美术图片MD5文件
+    /// </summary>
+    public void CreateOutsideMD5File()
     {
         /*
         var selectDirectory = Selection.activeObject;
@@ -41,140 +112,20 @@ public class PictureCompareTool : Editor {
         BuildMD5VersionByPath(path, path + MD5FileName);
 
     }
-    /*
-    /// <summary>
-    /// 先计算目标文件夹内图片的MD5值，再与预先创建好的项目内的MD5信息文件对比,然后打开图片对比窗口
-    /// </summary>
-    [MenuItem("MyEditor/进行图片资源对比")]
-    public static void CompareContent()
-    {
-        string path = EditorUtility.OpenFolderPanel("选择Art文件目录", "", "");
-
-        if (string.IsNullOrEmpty(path)) return;
-
-        bool sureMark = true;
-        string comPath = Path.Combine(path, "PicFile.txt");
-        if (!File.Exists(comPath))
-        {
-            Debug.LogWarning("对比文件不存在");
-            sureMark = EditorUtility.DisplayDialog("注意", "是否确定为该文件夹该文件夹为图片资源合集", "OK", "Cancel");
-        }
-
-        if (!sureMark) return;
-
-        CollectAllFilesPath(path);
-
-        Dictionary<string, string> dicNameMD5 = new Dictionary<string, string>();
-        Dictionary<string, string> dicMD5Path = new Dictionary<string, string>();
-        for (int i = 0; i < _picPathSet.Count; ++i)
-        {
-            EditorUtility.DisplayProgressBar("正在计算图片MD5值", _picPathSet[i], (float)i / (float)_picPathSet.Count);
-
-            string md5 = Util.md5file(_picPathSet[i]);
-            string name = Path.GetFileName(_picPathSet[i]);
-
-            if (dicNameMD5.ContainsKey(name))
-            {
-                dicNameMD5[name] = dicNameMD5[name] + '/' + md5;
-            }
-            else
-            {
-                dicNameMD5.Add(name, md5);
-            }
-            if(!dicMD5Path.ContainsKey(md5))
-             dicMD5Path.Add(md5, _picPathSet[i]);
-        }
-        _picPathSet.Clear();
-
-        List<string> fileSet = new List<string>();
-        List<string> md5Set = new List<string>();
-        List<string> diffSet = new List<string>();
-
-        StreamReader sr = new StreamReader(Application.dataPath + TargetPath);
-
-        while (!sr.EndOfStream)
-        {
-            fileSet.Add(sr.ReadLine());
-            md5Set.Add(sr.ReadLine());
-        }
-        sr.Close();
-
-        Dictionary<string, string[]> dicStrDouble = new Dictionary<string, string[]>();
-        for (int i = 0; i < fileSet.Count; ++i)
-        {
-            EditorUtility.DisplayProgressBar("正在对比", fileSet[i], (float)i / (float)fileSet.Count);
-            string fileName = Path.GetFileName(fileSet[i]);
-            string compareContent = "";
-            dicNameMD5.TryGetValue(fileName, out compareContent);
-
-            if (compareContent == null)
-            {
-                continue;
-            }
-
-            string[] muliMD5 = compareContent.Split('/');
-            bool anyOneEqual = false;
-            for (int j = 0; j < muliMD5.Length; ++j)
-            {
-                if (string.Equals(muliMD5[j], md5Set[i]))
-                {
-                    anyOneEqual = true;
-                    break;
-                }
-            }
-
-            if (!anyOneEqual)
-            {
-                diffSet.Add(fileSet[i]);
-                string[] strArray = new string[muliMD5.Length];
-                for (int n =0; n<muliMD5.Length ;++n )
-                {
-                    dicMD5Path.TryGetValue(muliMD5[n], out strArray[n]);
-                }
-
-                dicStrDouble.Add( fileSet[i] , strArray);
-            }
-        }
-        EditorUtility.ClearProgressBar();
-
-        if (diffSet.Count == 0)
-        {
-            Debug.Log("并没有差异");
-            return;
-        }
-
-        StreamWriter diffSr = new StreamWriter(Application.dataPath + "/Editor/DifferentPictures.txt");
-        for (int i = 0; i < diffSet.Count; ++i)
-        {
-            //Debug.Log(diffSet[i]);
-            diffSr.WriteLine(diffSet[i]);
-            diffSr.Flush();
-        }
-        diffSr.Close();
-        AssetDatabase.Refresh();
-
-        PictureCompareWindow pcw = CreateInstance<PictureCompareWindow>();
-        pcw._picPathList = diffSet;
-        pcw._dicOneToMany = dicStrDouble;
-        pcw.LoadPicture();
-        pcw.Show();
-    }
-    */
 
     /// <summary>
     /// 先计算目标文件夹内图片的MD5值，再与预先创建好的项目内的MD5信息文件对比,然后打开图片对比窗口
     /// </summary>
-    [MenuItem("MyEditor/进行图片资源对比")]
-    public static void CompareContent2()
+    public void CompareContent()
     {
-        string path = EditorUtility.OpenFolderPanel("选择Art文件目录", "", "");
-
-        if (path == null) return;
+        string path = EditorUtility.OpenFolderPanel("选择Art文件目录", null, "");
+        if (path.Equals("")||path == null) return;
 
         bool sureMark = true;
         bool existsMark = true;
         string comPath = Path.Combine(path, "PicFile.txt");
-        if (!File.Exists(comPath))
+
+        if (!File.Exists(comPath) && !_ignoreExsitFile)
         {
             existsMark = false;
             Debug.LogWarning("对比文件不存在");
@@ -183,7 +134,7 @@ public class PictureCompareTool : Editor {
 
         if (!sureMark) return;
 
-        if (!existsMark)
+        if (!existsMark || _ignoreExsitFile)
         {
             BuildMD5VersionByPath(path, comPath);
         }
@@ -194,7 +145,7 @@ public class PictureCompareTool : Editor {
     /// 根据路径读取美术资源的MD5信息文件
     /// </summary>
     /// <param name="path"></param>
-    public static void ReadMD5FileByPath(string path)
+    public void ReadMD5FileByPath(string path)
     {
         StreamReader sr = new StreamReader(path);
 
@@ -249,9 +200,11 @@ public class PictureCompareTool : Editor {
     /// <param name="md5PathSet"></param>
     /// <param name="nameList"></param>
     /// <param name="md5List"></param>
-    public static void CompareWithMD5( Dictionary<string , string> nameMD5Set, Dictionary<string, string> md5PathSet , List<string> nameList , List<string> md5List )
+    public void CompareWithMD5( Dictionary<string , string> nameMD5Set, Dictionary<string, string> md5PathSet , List<string> nameList , List<string> md5List )
     {
-        List<string> diffSet = new List<string>();
+        List<string> diffList = new List<string>();
+        StringBuilder streamBuffer = new StringBuilder();
+
         Dictionary<string, string[]> dicStrDouble = new Dictionary<string, string[]>();
 
         for (int i = 0; i < nameList.Count; ++i)
@@ -277,36 +230,37 @@ public class PictureCompareTool : Editor {
             }
             if (!anyOneEqual)
             {
-                diffSet.Add(nameList[i]);
+                streamBuffer.AppendLine(nameList[i] + SplitChar + muliMD5.Length + SplitChar + "0");
+                diffList.Add(nameList[i]);
                 string[] strArray = new string[muliMD5.Length];
                 for (int n = 0; n < muliMD5.Length; ++n)
                 {
                     md5PathSet.TryGetValue(muliMD5[n], out strArray[n]);
+                    streamBuffer.AppendLine(strArray[n]);
                 }
                 dicStrDouble.Add(nameList[i], strArray);
             }
         }
         EditorUtility.ClearProgressBar();
 
-        if (diffSet.Count == 0)
+        if (streamBuffer.Length == 0)
         {
             Debug.Log("没有差异");
             return;
         }
 
-        StreamWriter diffSr = new StreamWriter(Application.dataPath + "/Editor/DifferentPictures.txt");
-        for (int i = 0; i < diffSet.Count; ++i)
-        {
-            diffSr.WriteLine(diffSet[i]);
-            diffSr.Flush();
-        }
+        StreamWriter diffSr = new StreamWriter(Application.dataPath +DifferentFilePath);
+
+        diffSr.Write(streamBuffer.ToString());
+        diffSr.Flush();
+        
         diffSr.Close();
         AssetDatabase.Refresh();
 
-        OpenCompareWindow(diffSet, dicStrDouble);
+        OpenCompareWindow(diffList, dicStrDouble);
     }
 
-    public static void OpenCompareWindow( List<string> diffList , Dictionary<string, string[]> dicStrDouble)
+    public void OpenCompareWindow( List<string> diffList , Dictionary<string, string[]> dicStrDouble)
     {
         PictureCompareWindow pcw = CreateInstance<PictureCompareWindow>();
         pcw._picPathList = diffList;
@@ -316,13 +270,31 @@ public class PictureCompareTool : Editor {
     }
 
     /// <summary>
+    /// 打开对比展示窗口
+    /// </summary>
+    /// <param name="path">差异信息文件的路径</param>
+    public void OpenCompareWindow(string path)
+    {
+        if(!File.Exists(path))
+        {
+            Debug.LogWarning("差异文件不存在");
+            return;
+        }
+
+        PictureCompareWindow pcw = CreateInstance<PictureCompareWindow>();
+        pcw.LoadDifferentFile(path);
+        pcw.LoadPicture();
+        pcw.Show();
+    }
+
+    /// <summary>
     /// 计算文件夹下图片的MD5值，把数据收录到目标路径下
     /// </summary>
     /// <param name="sourceDirectory"></param>
     /// <param name="targetPath"></param>
-    public static void BuildMD5VersionByPath(string sourceDirectory, string targetPath)
+    public void BuildMD5VersionByPath(string sourceDirectory, string targetPath)
     {
-        if (sourceDirectory == null || !Directory.Exists(sourceDirectory))
+        if (sourceDirectory == null ||sourceDirectory.Equals("")|| !Directory.Exists(sourceDirectory))
         {
             Debug.LogWarning("目录不存在");
             return;
@@ -355,12 +327,12 @@ public class PictureCompareTool : Editor {
     /// 收集path文件夹下所有的图片资源
     /// </summary>
     /// <param name="path"></param>
-    public static void CollectAllFilesPath( string path )
+    public  void CollectAllFilesPath( string path )
     {
         DirectoryInfo dirInfo = new DirectoryInfo(path);
 
         FileInfo[] filesInfo = dirInfo.GetFiles();
-
+        
         for ( int i =0; i<filesInfo.Length ;++i )
         {
             string ext = Path.GetExtension(filesInfo[i].FullName);

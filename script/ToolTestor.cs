@@ -23,8 +23,11 @@ public class ToolTestor : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        /*
         AssetBundle bundle = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/testcanvas");
         Instantiate(bundle.LoadAsset("TestPrefab"));
+        */
+        
 	}
 	
 	// Update is called once per frame
