@@ -23,18 +23,27 @@ public class InputSettingPanel : MonoBehaviour {
             _inputConfig = JsonUtility.FromJson<InputConfigBase>(json);
             sr.Close();
         }
+        else
+        {
+            InputConfig inputConfig = Resources.Load<InputConfig>(InputConfig.ConfigName);
+            _inputConfig = new InputConfigBase();
+            _inputConfig._valueSet = inputConfig._valueSet;
+            _inputConfig._commandSet = inputConfig._commandSet;
 
-        int count = _inputConfig._keySet.Length;
+            SaveConfig();
+        }
+
+        int count = _inputConfig._commandSet.Length;
         _toggleGroup = new GameObject[count];
 
         for (int i = 0; i < count; ++i)
         {
             GameObject clone = Instantiate(_toggle , _group.transform);
 
-            string key = _inputConfig._keySet[i];
+            CommandType cmd = _inputConfig._commandSet[i];
             KeyCode val = _inputConfig._valueSet[i];
 
-            clone.transform.Find("CmdName").GetComponent<Text>().text = key;
+            clone.transform.Find("CmdName").GetComponent<Text>().text = cmd.ToString() ;
             clone.transform.Find("keyCode").GetComponent<Text>().text = val.ToString();
 
             clone.transform.localPosition -= (new Vector3(0f, 30f*i, 0f));

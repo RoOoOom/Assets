@@ -6,13 +6,7 @@ using System;
 using System.IO;
 
 public class InputManager : MonoBehaviour {
-    public const int MAX_KEYCOUNT = 6;
-    public const int Attack_key = 0;
-    public const int Jump_key = 1;
-    public const int MoveFoward_key = 2;
-    public const int MoveBack_key = 3;
-    public const int MoveLeft_key = 4;
-    public const int MoveRight_key = 5;
+    public const int MAX_KEYCOUNT = 10;
 
     public PlayerObj _playerObj;
 
@@ -26,7 +20,8 @@ public class InputManager : MonoBehaviour {
     //暂时确定指令索引 0-攻击，1-跳跃，2-向前移动，3向后移动,4向左移动，5向右移动
 
     CommandBase[] _CmdList = new CommandBase[MAX_KEYCOUNT];
-    KeyCode[] _keyList = new KeyCode[MAX_KEYCOUNT];
+    Dictionary<KeyCode , CommandType> _keyList = new Dictionary<KeyCode, CommandType>();
+    KeyCode[] _keycodeList;
 
     void Start () {
         if (_playerObj == null)
@@ -53,54 +48,23 @@ public class InputManager : MonoBehaviour {
 
     void KeyCheckA()
     {
-        if (Input.GetKeyDown(_keyList[Attack_key]))
+        for (int i = 0; i < _keycodeList.Length; ++i)
         {
-            _CmdList[Attack_key].Excute();
-        }
-        else if (Input.GetKeyDown(_keyList[Jump_key]))
-        {
-            _CmdList[Jump_key].Excute();
-        }
+            if (Input.GetKeyDown(_keycodeList[i]))
+            {
+                CommandType ct;
+                if (_keyList.TryGetValue(_keycodeList[i], out ct))
+                {
+                    _CmdList[(int)ct].Excute();
+                }
 
-        if (Input.GetKeyDown(_keyList[MoveFoward_key]))
-        {
-            _CmdList[MoveFoward_key].Excute();
-        }
-        else if (Input.GetKeyDown(_keyList[MoveBack_key]))
-        {
-            _CmdList[MoveBack_key].Excute();
-        }
-
-        if (Input.GetKeyDown(_keyList[MoveLeft_key]))
-        {
-            _CmdList[MoveLeft_key].Excute();
-        }
-        else if (Input.GetKeyDown(_keyList[MoveRight_key]))
-        {
-            _CmdList[MoveRight_key].Excute();
+            }
         }
     }
 
     void KeyCheckB()
     {
-
-        if (Input.GetKeyDown(_keyList[Attack_key]))
-        {
-           _cmdAttack.Excute(_playerObj);
-        }
-        else if (Input.GetKeyDown(_keyList[Jump_key]))
-        {
-            _cmdJump.Excute(_playerObj);
-        }
-
-        if (Input.GetKeyDown(_keyList[MoveFoward_key]))
-        {
-            _cmdMoveForward.Excute(_playerObj);
-        }
-        else if (Input.GetKeyDown(_keyList[MoveBack_key]))
-        {
-            _cmdMoveBack.Excute(_playerObj);
-        }
+        
     }
 
     private void OnDisable()
@@ -113,12 +77,12 @@ public class InputManager : MonoBehaviour {
         for (int i = 0; i < MAX_KEYCOUNT; ++i)
             _CmdList[i] = new CommandBase();
 
-        _CmdList[0].ProcessAction += _playerObj.Attack;
-        _CmdList[1].ProcessAction += _playerObj.Jump;
-        _CmdList[2].ProcessAction += _playerObj.MoveForward;
-        _CmdList[3].ProcessAction += _playerObj.MoveBack;
-        _CmdList[4].ProcessAction += _playerObj.MoveLeft;
-        _CmdList[5].ProcessAction += _playerObj.MoveRight;
+        _CmdList[(int)CommandType.Attack].ProcessAction += _playerObj.Attack;
+        _CmdList[(int)CommandType.Jump].ProcessAction += _playerObj.Jump;
+        _CmdList[(int)CommandType.MoveForward].ProcessAction += _playerObj.MoveForward;
+        _CmdList[(int)CommandType.MoveBack].ProcessAction += _playerObj.MoveBack;
+        _CmdList[(int)CommandType.MoveLeft].ProcessAction += _playerObj.MoveLeft;
+        _CmdList[(int)CommandType.MoveRight].ProcessAction += _playerObj.MoveRight;
     }
 
     void InitBplan()
@@ -136,12 +100,16 @@ public class InputManager : MonoBehaviour {
             InputConfigBase inputConfig = JsonUtility.FromJson<InputConfigBase>(json);
             sr.Close();
 
-            int len = Mathf.Min(MAX_KEYCOUNT, inputConfig._valueSet.Length);
+            int len = inputConfig._commandSet.Length;
+            Debug.Log(len);
+            Debug.Break();
 
             for (int i = 0; i < len; ++i)
             {
-                _keyList[i] = inputConfig._valueSet[i];
+                _keyList.Add(inputConfig._valueSet[i], inputConfig._commandSet[i]);
             }
+
+            _keycodeList = inputConfig._valueSet;
         }
         
     }

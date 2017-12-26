@@ -51,8 +51,7 @@ public class InputConfigEditor : Editor {
         {
             EditorGUILayout.BeginHorizontal();
 
-            _inputConfig._keySet[i] = EditorGUILayout.TextField(_inputConfig._keySet[i]);
-            // _inputConfig._valueSet[i] = EditorGUILayout.TextField(_inputConfig._valueSet[i]);
+            _inputConfig._commandSet[i] = (CommandType)EditorGUILayout.EnumPopup(_inputConfig._commandSet[i]);
             _inputConfig._valueSet[i] = (KeyCode)EditorGUILayout.EnumPopup(_inputConfig._valueSet[i]);
 
             if (GUILayout.Button("-",GUILayout.Width(ButtonWidth)))
@@ -72,11 +71,6 @@ public class InputConfigEditor : Editor {
         if (GUILayout.Button("Save", GUILayout.Width(ButtonWidth )))
         {
             SaveInputConfig();
-        }
-
-        if (GUILayout.Button("ReadData",GUILayout.Width(ButtonWidth*2)))
-        {
-            ReadData();
         }
     }
 
@@ -104,8 +98,8 @@ public class InputConfigEditor : Editor {
     /// </summary>
     void AddKeyValue()
     {
-        _inputConfig.AddKeyValue("", KeyCode.Space);
-
+        // _inputConfig.AddKeyValue("", KeyCode.Space);
+        _inputConfig.AddKeyValue(CommandType.None, KeyCode.Space);
     }
 
     /// <summary>
@@ -114,18 +108,8 @@ public class InputConfigEditor : Editor {
     /// <param name="index"></param>
     void RemoveKeyValue(int index)
     {
-        _inputConfig.RemoveKey(index);
+        // _inputConfig.RemoveKey(index);
+        _inputConfig.RemoveKeyByIndex(index);
     }
 
-
-    void ReadData()
-    {
-        int len = _inputConfig.TryGetSetLength();
-
-        for (int i = 0; i < len; ++i) 
-        {
-            string key = _inputConfig._keySet[i];
-            Debug.Log("key : " + key + "  value:" + _inputConfig._valueSet[i]);
-        }
-    }
 }
