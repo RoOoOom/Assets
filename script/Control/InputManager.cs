@@ -16,12 +16,9 @@ public class InputManager : MonoBehaviour {
     CmdMoveForward _cmdMoveForward = new CmdMoveForward();
     CmdMoveLeft _cmdMoveLeft = new CmdMoveLeft();
     CmdMoveRight _cmdMoveRight = new CmdMoveRight();
-    // Use this for initialization
-    //暂时确定指令索引 0-攻击，1-跳跃，2-向前移动，3向后移动,4向左移动，5向右移动
 
     CommandBase[] _CmdList = new CommandBase[MAX_KEYCOUNT];
-    Dictionary<KeyCode , CommandType> _keyList = new Dictionary<KeyCode, CommandType>();
-    KeyCode[] _keycodeList;
+    KeyCode[] _keycodeList = new KeyCode[MAX_KEYCOUNT];
 
     void Start () {
         if (_playerObj == null)
@@ -48,18 +45,32 @@ public class InputManager : MonoBehaviour {
 
     void KeyCheckA()
     {
-        for (int i = 0; i < _keycodeList.Length; ++i)
+        if (Input.GetKeyDown(_keycodeList[(int)CommandType.MoveForward]))
         {
-            if (Input.GetKeyDown(_keycodeList[i]))
-            {
-                CommandType ct;
-                if (_keyList.TryGetValue(_keycodeList[i], out ct))
-                {
-                    _CmdList[(int)ct].Excute();
-                }
-
-            }
+            _CmdList[(int)CommandType.MoveForward].Excute();
         }
+        else if (Input.GetKeyDown(_keycodeList[(int)CommandType.MoveBack]))
+        {
+            _CmdList[(int)CommandType.MoveBack].Excute();
+        }
+        else if (Input.GetKeyDown(_keycodeList[(int)CommandType.MoveLeft]))
+        {
+            _CmdList[(int)CommandType.MoveLeft].Excute();
+        }
+        else if (Input.GetKeyDown(_keycodeList[(int)CommandType.MoveRight]))
+        {
+            _CmdList[(int)CommandType.MoveRight].Excute();
+        }
+
+
+        if ( Input.GetKeyDown(_keycodeList[(int)CommandType.Attack]) )
+        {
+            _CmdList[(int)CommandType.Attack].Excute();
+        }
+        else if(Input.GetKeyDown(_keycodeList[(int)CommandType.Jump]))
+        {
+            _CmdList[(int)CommandType.Jump].Excute();
+        }   
     }
 
     void KeyCheckB()
@@ -101,15 +112,12 @@ public class InputManager : MonoBehaviour {
             sr.Close();
 
             int len = inputConfig._commandSet.Length;
-            Debug.Log(len);
-            Debug.Break();
 
-            for (int i = 0; i < len; ++i)
+            for ( int i = 0;i<len;++i )
             {
-                _keyList.Add(inputConfig._valueSet[i], inputConfig._commandSet[i]);
+                int index = (int)inputConfig._commandSet[i];
+                _keycodeList[index] = inputConfig._valueSet[i];
             }
-
-            _keycodeList = inputConfig._valueSet;
         }
         
     }
