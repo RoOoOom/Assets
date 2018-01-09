@@ -50,7 +50,7 @@ public class ToolTestor : MonoBehaviour {
     IEnumerator TestCircle()
     {
         Debug.Log("开始执行");
-        yield return StartCoroutine(_test);
+        yield return null;
         Debug.Log("执行到这里");
     }
 
