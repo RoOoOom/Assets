@@ -4,27 +4,43 @@ using UnityEngine;
 
 public enum TileType
 {
-    Normal = 0,
-    Barrier,
-    Safe,
-    Portol,
-    Monster,
-    Born,
-    Reborn,
-    Collect,
-    Jump
+    Normal = 1,
+    Barrier= 0,
+    Safe = 2,
+    Portol = 4,
+    Monster = 8,
+    Born = 16,
+    Reborn = 32 ,
+    Collect = 64,
+    Jump = 128
 }
 
+public struct SimpleSquare
+{
+    public int id;
+    public int row;
+    public int col;
+    public int type;
+    public Vector2 topLeftPoint;
+}
+
+public struct AreaSquare
+{
+    public int type;
+    public Vector3 startPoint;
+    public Vector3 endPoint;
+}
+    
 public class Square {
-    public const int NORMAL_TILE = 0;
-    public const int BARRIER_TILE = 1;
+    public const int NORMAL_TILE = 1;
+    public const int BARRIER_TILE = 0;
     public const int SAFE_TILE = 2;
-    public const int PORTOL_TILE = 3;
-    public const int MONSTER_TILE = 4;
-    public const int BORN_TILE = 5;
-    public const int REBORN_TILE = 6;
-    public const int COLLECT_TILE = 7;
-    public const int JUMP_TILE = 8;
+    public const int PORTOL_TILE = 4;
+    public const int MONSTER_TILE = 8;
+    public const int BORN_TILE = 16;
+    public const int REBORN_TILE = 32;
+    public const int COLLECT_TILE = 64;
+    public const int JUMP_TILE = 128;
 
     public bool Comfortable { get{return _ok; }set { _ok = value; } }
     public int Row { get { return _row; } }
@@ -41,7 +57,7 @@ public class Square {
     private bool _ok = false;
     private int _row;
     private int _col;
-    private int _type = 0;
+    private int _type = 1;
     private float _width;
     private float _height;
     private Vector2 _topLeftPoint;
@@ -140,12 +156,23 @@ public class Square {
         return arr;
     }
 
-    public void SetType(int newType)
+    public void SetAreaType(int newType)
     {
-        _type = newType;
+        if (newType == 0)
+        {
+            _type = 0;
+        }
+        else if ( newType == 1 ) 
+        {
+            _type = 1;
+        }
+        else
+        {
+            _type = _type | newType;
+        }
     }
 
-    public int GetType()
+    public int GetAreaType()
     {
         return _type;
     }
