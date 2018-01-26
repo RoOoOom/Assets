@@ -18,6 +18,8 @@ public class InfoTileTool : MonoBehaviour {
     public bool m_showWireCube = false;  //是否绘制空心的方格
     public bool m_isExportProcess = false; //是否为导出操作
 
+    public int m_selTileIndex = 0;
+
     public float m_tilePixel; //方格大小
     public float m_mapWidth;
     public float m_mapHeight;

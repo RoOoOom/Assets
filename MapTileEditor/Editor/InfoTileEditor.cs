@@ -237,8 +237,8 @@ public class InfoTileEditor : Editor {
 
         //m_infoTileTool.m_tilePrefab = (GameObject)EditorGUILayout.ObjectField("展示效果的方格预制件", m_infoTileTool.m_tilePrefab, typeof(GameObject), true);
 
-        m_selectIndex = EditorGUILayout.Popup("方格的大小(pixel)", m_selectIndex, m_lengtStrArray);
-        m_infoTileTool.m_tilePixel = m_lengthArray[m_selectIndex];
+        m_infoTileTool.m_selTileIndex = EditorGUILayout.Popup("方格的大小(pixel)", m_infoTileTool.m_selTileIndex, m_lengtStrArray);
+        m_infoTileTool.m_tilePixel = m_lengthArray[m_infoTileTool.m_selTileIndex];
 
         EditorGUILayout.BeginHorizontal();
         m_infoTileTool.m_RowCount = EditorGUILayout.IntField("行数",m_infoTileTool.m_RowCount);

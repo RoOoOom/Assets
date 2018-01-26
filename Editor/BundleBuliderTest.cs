@@ -14,4 +14,21 @@ public class BundleBuliderTest{
 
         AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
     }
+
+    [MenuItem("MyEditor/BuildSceneAsset")]
+    public static void BuildSceneAsset()
+    {
+        Object[] objs = Selection.objects;
+        if (objs == null || objs.Length <= 0) return;
+
+        foreach (Object obj in objs)
+        {
+            string savePath = Application.streamingAssetsPath + '/' + obj.name + ".ab";
+            string objPath = AssetDatabase.GetAssetPath(obj);
+            objPath = objPath.Replace(Application.dataPath, "Assets");
+            Debug.Log(objPath);
+            string[] levels = new string[] {objPath};
+            BuildPipeline.BuildPlayer( levels,savePath , BuildTarget.StandaloneWindows64 , BuildOptions.BuildAdditionalStreamedScenes );
+        }
+    }
 }
